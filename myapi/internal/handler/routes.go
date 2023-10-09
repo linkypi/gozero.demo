@@ -2,24 +2,39 @@
 package handler
 
 import (
+	"myapi/internal/handler/auth"
 	"net/http"
 	"time"
 
-	auth "myapi/internal/handler/auth"
+	party "myapi/internal/handler/party"
 	"myapi/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/auth/login",
+				Handler: auth.LoginHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/v1"),
+		rest.WithTimeout(3000*time.Millisecond),
+		rest.WithMaxBytes(1048576),
+	)
+
 	server.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.AuthInterceptor},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
-					Path:    "/login",
-					Handler: auth.LoginHandler(serverCtx),
+					Path:    "/party/getByPage",
+					Handler: party.PartyHandler(serverCtx),
 				},
 			}...,
 		),

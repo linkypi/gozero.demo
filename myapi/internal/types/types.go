@@ -7,5 +7,22 @@ type LoginReq struct {
 }
 
 type LoginResp struct {
-	Name string `json:"name"`
+	Name        string `json:"name"`
+	AccessToken string `json:"access_token"`
+}
+
+type PartyReq struct {
+	PartyName string `json:"party_name"`
+	PartyId   string `json:"party_id"`
+}
+
+type PartyResp struct {
+	PartyName string `json:"party_name"`
+	PartyId   string `json:"party_id"`
+}
+
+type JwtTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	AccessExpire int64  `json:"access_expire"`
+	RefreshAfter int64  `json:"refresh_after"`
 }
