@@ -2,45 +2,56 @@
 package handler
 
 import (
-	"myapi/internal/handler/auth"
-	"net/http"
-	"time"
-
-	party "myapi/internal/handler/party"
-	"myapi/internal/svc"
-
 	"github.com/zeromicro/go-zero/rest"
+	"net/http"
 )
 
-func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+type Routers struct {
+	server     *rest.Server
+	middleware []rest.Middleware
+	ropts      []rest.RouteOption
+}
 
-	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/auth/login",
-				Handler: auth.LoginHandler(serverCtx),
-			},
-		},
-		rest.WithPrefix("/v1"),
-		rest.WithTimeout(3000*time.Millisecond),
-		rest.WithMaxBytes(1048576),
-	)
+func NewRouters(server *rest.Server) *Routers {
+	return &Routers{
+		server: server,
+	}
+}
 
-	server.AddRoutes(
+func (r *Routers) Get(path string, handler http.HandlerFunc) {
+	r.server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AuthInterceptor},
-			[]rest.Route{
-				{
-					Method:  http.MethodPost,
-					Path:    "/party/getByPage",
-					Handler: party.PartyHandler(serverCtx),
-				},
-			}...,
-		),
-		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
-		rest.WithPrefix("/v1"),
-		rest.WithTimeout(3000*time.Millisecond),
-		rest.WithMaxBytes(1048576),
+			r.middleware,
+			rest.Route{
+				Method:  http.MethodGet,
+				Path:    path,
+				Handler: handler,
+			},
+		), r.ropts...,
 	)
+}
+
+func (r *Routers) Post(path string, handler http.HandlerFunc) {
+	r.server.AddRoutes(
+		rest.WithMiddlewares(
+			r.middleware,
+			rest.Route{
+				Method:  http.MethodPost,
+				Path:    path,
+				Handler: handler,
+			},
+		), r.ropts...,
+	)
+}
+
+func (r *Routers) Group(ops ...rest.RouteOption) *Routers {
+	router := &Routers{
+		server: r.server,
+		ropts:  ops,
+	}
+	return router
+}
+
+func (r *Routers) AddOpt(ops ...rest.RouteOption) {
+	r.ropts = append(r.ropts, ops...)
 }

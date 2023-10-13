@@ -15,6 +15,13 @@ type PartyLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
+func NewLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PartyLogic {
+	return &PartyLogic{
+		Logger: logx.WithContext(ctx),
+		ctx:    ctx,
+		svcCtx: svcCtx,
+	}
+}
 func NewPartyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PartyLogic {
 	return &PartyLogic{
 		Logger: logx.WithContext(ctx),

@@ -11,12 +11,6 @@ type JwtUtil struct {
 	Config config.Config
 }
 
-func NewJwtUtil(c config.Config) *JwtUtil {
-	return &JwtUtil{
-		Config: c,
-	}
-}
-
 func GenJwtToken(payloads map[string]interface{}, config config.Config) (*types.JwtTokenResponse, error) {
 
 	secret := config.Auth.AccessSecret
